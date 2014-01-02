@@ -18,7 +18,7 @@ end
 
 describe SqlParser, "parsing" do
   include_context "SqlParser"
-  
+
   it "when conditions are not joined with an :and or :or, does not succeed" do
     @parser.parse("select first_name from users where first_name='joe' last_name='bob'").should be_nil
   end
@@ -92,7 +92,7 @@ end
 
 describe SqlParser, "#conditions when parsing select statement" do
   include_context "SqlParser"
-  
+
   it "when no where conditions, returns empty hash" do
     parse("select first_name from users").conditions.should == []
   end
@@ -156,6 +156,18 @@ describe SqlParser, "#conditions when parsing select statement" do
       {:operator => :'<=', :field => :id, :value => 3},
       {:operator => :and},
       {:operator => :'<=', :field => :age, :value => 25}
+    ]
+  end
+
+  it "returns array only for %w(in = != <>)" do
+    parse("select first_name from users where id in [3, 4, 5]").conditions.should == [
+      { :operator => :'in', :field => :id, :value => "[3, 4, 5]" }
+    ]
+
+    parse("select first_name from users where id = [3, 4] and age != [25 , 26]").conditions.should == [
+      {:operator => :'=', :field => :id, :value => "[3, 4]"},
+      {:operator => :and},
+      {:operator => :'!=', :field => :age, :value => "[25, 26]"}
     ]
   end
 

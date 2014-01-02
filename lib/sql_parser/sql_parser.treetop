@@ -114,6 +114,16 @@ grammar Sql
   end
 
   rule conditional_item
+    assignment_field space conditional_operator_array space array {
+      def node
+        [{
+          :operator => conditional_operator_array.value,
+          :field => assignment_field.text_value.to_sym,
+          :value => array.value
+        }]
+      end
+    }
+    /
     assignment_field space conditional_operator space assignment_value {
       def node
         [{
@@ -125,8 +135,16 @@ grammar Sql
     }
   end
 
+  rule conditional_operator_array
+    ('!=' / '<>' / 'in' / '=') {
+      def value
+        text_value.to_sym
+      end
+    }
+  end
+
   rule conditional_operator
-    ('<>' / '>=' / '<=' / '=' / '>' / '<') {
+    ('!=' / '<>' / '>=' / '<=' / '=' / '>' / '<') {
       def value
         text_value.to_sym
       end
@@ -159,6 +177,20 @@ grammar Sql
     }
   end
 
+  rule string_or_integer
+    string_assignment_value
+    /
+    numeric_assignment_value
+  end
+
+  rule array
+    '[' (string_or_integer / separator)* ']' {
+      def value
+        text_value.gsub(' ,', ',')
+      end
+    }
+  end
+
   rule items
     item space [,]+ space items <SqlParser::ItemsNode>
     /
@@ -179,5 +211,9 @@ grammar Sql
 
   rule space
     ' '*
+  end
+
+  rule separator
+    space ',' space
   end
 end
