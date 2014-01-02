@@ -160,8 +160,12 @@ describe SqlParser, "#conditions when parsing select statement" do
   end
 
   it "returns array only for %w(in = != <>)" do
-    parse("select first_name from users where id in [3, 4, 5]").conditions.should == [
+    parse("select first_name from users where id IN [3, 4, 5]").conditions.should == [
       { :operator => :'in', :field => :id, :value => "[3, 4, 5]" }
+    ]
+
+    parse("select first_name from users where id <> [3, 4, 5]").conditions.should == [
+      { :operator => :'<>', :field => :id, :value => "[3, 4, 5]" }
     ]
 
     parse("select first_name from users where id = [3, 4] and age != [25 , 26]").conditions.should == [

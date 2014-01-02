@@ -136,9 +136,9 @@ grammar Sql
   end
 
   rule conditional_operator_array
-    ('!=' / '<>' / 'in' / '=') {
+    ('!=' / '<>' / 'in' / 'IN' / '=') {
       def value
-        text_value.to_sym
+        text_value.downcase.to_sym
       end
     }
   end
@@ -202,7 +202,7 @@ grammar Sql
   end
 
   rule keyword
-    'select' / 'from'
+    'select' / 'from' / 'in'
   end
 
   rule required_space
