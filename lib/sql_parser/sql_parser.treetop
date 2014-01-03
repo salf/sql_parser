@@ -158,7 +158,9 @@ grammar Sql
   rule assignment_value
     string_assignment_value
     /
-    numeric_assignment_value
+    float_assignment_value
+    /
+    integer_assignment_value
   end
 
   rule string_assignment_value
@@ -169,22 +171,24 @@ grammar Sql
     }
   end
 
-  rule numeric_assignment_value
-    !keyword [0-9]+ {
+  rule float_assignment_value
+    [-+]? [0-9]+ '.' [0-9]+ {
+      def value
+        Float(text_value)
+      end
+    }
+  end
+
+  rule integer_assignment_value
+    [-+]? [0-9]+ {
       def value
         Integer(text_value)
       end
     }
   end
 
-  rule string_or_integer
-    string_assignment_value
-    /
-    numeric_assignment_value
-  end
-
   rule array
-    '[' (string_or_integer / separator)* ']' {
+    '[' (assignment_value / separator)* ']' {
       def value
         text_value.gsub(' ,', ',')
       end

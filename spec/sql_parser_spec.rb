@@ -140,6 +140,10 @@ describe SqlParser, "#conditions when parsing select statement" do
       { :operator => :'>=', :field => :id, :value => 3 }
     ]
 
+    parse("select first_name from users where price >= 3.5").conditions.should == [
+      { :operator => :'>=', :field => :price, :value => 3.5 }
+    ]
+
     parse("select first_name from users where id>=3 and age>=25").conditions.should == [
       {:operator => :'>=', :field => :id, :value => 3},
       {:operator => :and},
@@ -164,8 +168,16 @@ describe SqlParser, "#conditions when parsing select statement" do
       { :operator => :'in', :field => :id, :value => "[3, 4, 5]" }
     ]
 
+    parse("select first_name from users where order IN ['3', '4', '5']").conditions.should == [
+      { :operator => :'in', :field => :order, :value => "['3', '4', '5']" }
+    ]
+
     parse("select first_name from users where id <> [3, 4, 5]").conditions.should == [
       { :operator => :'<>', :field => :id, :value => "[3, 4, 5]" }
+    ]
+
+    parse("select first_name from users where points <> [3.5, 4.01, 5]").conditions.should == [
+      { :operator => :'<>', :field => :points, :value => "[3.5, 4.01, 5]" }
     ]
 
     parse("select first_name from users where id = [3, 4] and age != [25 , 26]").conditions.should == [
