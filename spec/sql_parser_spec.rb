@@ -163,6 +163,22 @@ describe SqlParser, "#conditions when parsing select statement" do
     ]
   end
 
+  it "returns contains (LIKE)" do
+    parse("select first_name from users where name like '%john%'").conditions.should == [
+      { :operator => :'like', :field => :name, :value => '%john%' }
+    ]
+
+    parse("select first_name from users where name LIKE '%john%'").conditions.should == [
+      { :operator => :'like', :field => :name, :value => '%john%' }
+    ]
+
+    parse("select first_name from users where id<=3 and name like 'john%'").conditions.should == [
+      {:operator => :'<=', :field => :id, :value => 3},
+      {:operator => :and},
+      {:operator => :'like', :field => :name, :value => 'john%'}
+    ]
+  end
+
   it "returns array only for %w(in = != <>)" do
     parse("select first_name from users where id IN [3, 4, 5]").conditions.should == [
       { :operator => :'in', :field => :id, :value => "[3, 4, 5]" }
